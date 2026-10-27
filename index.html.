@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>التقاط صورة</title>
+</head>
+<body>
+  <h2>التقاط صورة بالكاميرا الأمامية</h2>
+  <p>اضغط الزر لتشغيل الكاميرا. بعد التقاط الصورة، يمكنك مراجعتها قبل إرسالها.</p>
+
+  <button id="start">تشغيل الكاميرا</button>
+  <br><br>
+  <video id="camera" autoplay playsinline
+         style="width:100%;max-width:400px"></video>
+  <br><br>
+  <button id="capture" disabled>التقاط الصورة</button>
+  <br><br>
+  <canvas id="photo" style="width:100%;max-width:400px"></canvas>
+  <p id="message"></p>
+
+  <script>
+    const video = document.getElementById('camera');
+    const canvas = document.getElementById('photo');
+    const message = document.getElementById('message');
+
+    document.getElementById('start').onclick = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: false
+        });
+        video.srcObject = stream;
+        document.getElementById('capture').disabled = false;
+        message.textContent = 'الكاميرا تعمل. يمكنك التقاط صورة بنفسك.';
+      } catch (error) {
+        message.textContent = 'لم يتم تشغيل الكاميرا. تحقق من الإذن.';
+      }
+    };
+
+    document.getElementById('capture').onclick = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      message.textContent =
+        'تم التقاط الصورة على جهازك. لم يتم إرسالها أو حفظها على الإنترنت.';
+      video.srcObject?.getTracks().forEach(track => track.stop());
+    };
+  </script>
+</body>
+</html>
